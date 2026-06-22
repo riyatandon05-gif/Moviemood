@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoodCinema – Discover Your Next Story</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090e;--bg2:#111118;--glass:rgba(255,255,255,0.05);--glass2:rgba(255,255,255,0.09);
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.17);
+  --text:#f0f0f5;--text2:rgba(240,240,245,0.58);--muted:rgba(240,240,245,0.32);
+  --accent:#e8a838;--adim:rgba(232,168,56,0.14);
+  --r:14px;--rs:8px;--tr:0.22s cubic-bezier(.4,0,.2,1);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.13);border-radius:3px}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:rgba(9,9,14,0.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Playfair Display',serif;font-size:21px;font-weight:800;color:var(--text)}
+.logo span{color:var(--accent)}
+.nav-mid{display:flex;gap:4px}
+.nav-r{display:flex;align-items:center;gap:8px}
+.nav-tab{background:none;border:none;color:var(--text2);font-size:13px;font-weight:500;padding:7px 14px;border-radius:100px;cursor:pointer;transition:var(--tr);font-family:'Inter',sans-serif}
+.nav-tab:hover,.nav-tab.on{background:var(--glass2);color:var(--text)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;transition:var(--tr);border:none;outline:none;font-family:'Inter',sans-serif;text-decoration:none}
+.btn-p{background:var(--accent);color:#09090e}
+.btn-p:hover{background:#f0b840;transform:translateY(-2px);box-shadow:0 8px 22px rgba(232,168,56,0.3)}
+.btn-g{background:var(--glass);color:var(--text);border:1px solid var(--border);backdrop-filter:blur(8px)}
+.btn-g:hover{background:var(--glass2);border-color:var(--border2);transform:translateY(-2px)}
+.btn-sm{padding:7px 15px;font-size:13px}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 1.5rem 3rem;position:relative;overflow:hidden;text-align:center}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 55% at 50% 0%,rgba(124,92,191,0.2) 0%,transparent 65%),radial-gradient(ellipse 45% 35% at 80% 85%,rgba(232,168,56,0.09) 0%,transparent 55%);pointer-events:none}
+.badge{display:inline-flex;align-items:center;gap:7px;background:var(--adim);border:1px solid rgba(232,168,56,0.28);color:var(--accent);padding:5px 15px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.4rem;position:relative}
+.hero-h{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6.5vw,5rem);font-weight:800;line-height:1.09;max-width:860px;margin-bottom:1.1rem;position:relative}
+.hero-h .aw{color:var(--accent)}
+.hero-sub{font-size:clamp(.95rem,2.2vw,1.15rem);color:var(--text2);max-width:520px;line-height:1.65;margin-bottom:2.2rem;position:relative}
+.hero-acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:2.5rem;position:relative}
+.search-w{position:relative;width:100%;max-width:500px;margin-bottom:1.4rem}
+.search-inp{width:100%;background:var(--glass);border:1px solid var(--border);color:var(--text);padding:13px 50px 13px 20px;border-radius:100px;font-size:15px;backdrop-filter:blur(8px);outline:none;transition:var(--tr);font-family:'Inter',sans-serif}
+.search-inp::placeholder{color:var(--muted)}
+.search-inp:focus{border-color:var(--border2);background:var(--glass2)}
+.search-ico{position:absolute;right:17px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:17px;pointer-events:none}
+.sec{padding:4rem 1.5rem;max-width:1200px;margin:0 auto}
+.sec-eyebrow{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.65rem}
+.sec-title{font-family:'Playfair Display',serif;font-size:clamp(1.7rem,3.8vw,2.5rem);font-weight:700;margin-bottom:.65rem}
+.sec-sub{color:var(--text2);font-size:.95rem;max-width:480px;margin:0 auto}
+.sec-hdr{text-align:center;margin-bottom:2.4rem}
+.mood-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:11px;margin-bottom:1.8rem}
+.mood-card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:1.4rem .9rem;text-align:center;cursor:pointer;transition:var(--tr);display:flex;flex-direction:column;align-items:center;gap:9px;user-select:none}
+.mood-card:hover{transform:translateY(-4px) scale(1.02)}
+.mood-card.sel{transform:translateY(-4px) scale(1.03)}
+.mood-emoji{font-size:2.2rem;line-height:1}
+.mood-label{font-size:12px;font-weight:600;letter-spacing:.02em}
+.mc-happy:hover,.mc-happy.sel{background:rgba(232,200,56,0.11);border-color:rgba(232,200,56,0.45);box-shadow:0 0 24px rgba(232,200,56,0.15)}
+.mc-sad:hover,.mc-sad.sel{background:rgba(59,184,212,0.11);border-color:rgba(59,184,212,0.45);box-shadow:0 0 24px rgba(59,184,212,0.15)}
+.mc-romantic:hover,.mc-romantic.sel{background:rgba(212,96,122,0.11);border-color:rgba(212,96,122,0.45);box-shadow:0 0 24px rgba(212,96,122,0.15)}
+.mc-excited:hover,.mc-excited.sel{background:rgba(232,168,56,0.11);border-color:rgba(232,168,56,0.45);box-shadow:0 0 24px rgba(232,168,56,0.15)}
+.mc-motivational:hover,.mc-motivational.sel{background:rgba(76,175,130,0.11);border-color:rgba(76,175,130,0.45);box-shadow:0 0 24px rgba(76,175,130,0.15)}
+.mc-scared:hover,.mc-scared.sel{background:rgba(155,109,219,0.11);border-color:rgba(155,109,219,0.45);box-shadow:0 0 24px rgba(155,109,219,0.15)}
+.mc-relaxed:hover,.mc-relaxed.sel{background:rgba(59,184,212,0.09);border-color:rgba(59,184,212,0.38);box-shadow:0 0 24px rgba(59,184,212,0.12)}
+.mc-bored:hover,.mc-bored.sel{background:rgba(224,123,58,0.11);border-color:rgba(224,123,58,0.45);box-shadow:0 0 24px rgba(224,123,58,0.15)}
+.filters{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:2rem}
+.fbtn{background:var(--glass);border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;transition:var(--tr);font-family:'Inter',sans-serif}
+.fbtn:hover{background:var(--glass2);color:var(--text);border-color:var(--border2)}
+.fbtn.on{background:var(--adim);color:var(--accent);border-color:rgba(232,168,56,0.38)}
+.fsel{background:var(--glass);border:1px solid var(--border);color:var(--text2);padding:6px 13px;border-radius:100px;font-size:12px;cursor:pointer;outline:none;transition:var(--tr);font-family:'Inter',sans-serif}
+.fsel option{background:#1a1a2e;color:var(--text)}
+.movies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px}
+.mv-card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:var(--tr)}
+.mv-card:hover{transform:translateY(-5px);border-color:var(--border2);box-shadow:0 12px 40px rgba(0,0,0,0.45)}
+.mv-poster{position:relative;padding-top:148%;overflow:hidden}
+.mv-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.mv-badge{position:absolute;top:9px;left:9px;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:100px;border:1px solid rgba(255,255,255,0.12)}
+.mv-fav{position:absolute;top:9px;right:9px;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--tr);font-size:14px}
+.mv-fav:hover,.mv-fav.on{border-color:rgba(232,93,93,0.4);background:rgba(232,93,93,0.14)}
+.mv-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.9) 0%,rgba(0,0,0,0.2) 50%,transparent 100%);opacity:0;transition:var(--tr);display:flex;align-items:flex-end;padding:12px}
+.mv-card:hover .mv-overlay{opacity:1}
+.mv-body{padding:13px}
+.mv-title{font-size:13px;font-weight:600;margin-bottom:5px;line-height:1.3}
+.mv-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.mv-genre{font-size:10px;color:var(--muted);background:rgba(255,255,255,0.06);padding:2px 7px;border-radius:100px;border:1px solid var(--border)}
+.mv-rating{font-size:11px;font-weight:700;color:var(--accent);margin-left:auto}
+.mv-year{font-size:10px;color:var(--muted)}
+.mv-desc{font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:10px}
+.mv-acts{display:flex;gap:7px;align-items:center}
+.tr-btn{flex:1;background:var(--adim);border:1px solid rgba(232,168,56,0.28);color:var(--accent);padding:7px 0;border-radius:100px;font-size:11px;font-weight:600;cursor:pointer;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:4px;text-decoration:none;font-family:'Inter',sans-serif}
+.tr-btn:hover{background:rgba(232,168,56,0.25)}
+.type-pill{font-size:10px;color:var(--muted);background:rgba(255,255,255,0.05);padding:3px 9px;border-radius:100px;border:1px solid var(--border);white-space:nowrap}
+.skel{background:linear-gradient(90deg,var(--glass) 25%,rgba(255,255,255,0.09) 50%,var(--glass) 75%);background-size:200% 100%;animation:shim 1.5s infinite;border-radius:var(--rs)}
+@keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.78);backdrop-filter:blur(7px);display:flex;align-items:center;justify-content:center;padding:1rem;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:#13131e;border:1px solid var(--border);border-radius:20px;padding:2.2rem 1.8rem;width:100%;max-width:400px;animation:slideUp .28s ease;position:relative}
+@keyframes slideUp{from{transform:translateY(22px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-x{position:absolute;top:16px;right:16px;background:var(--glass);border:1px solid var(--border);color:var(--text2);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:var(--tr)}
+.modal-x:hover{background:var(--glass2);color:var(--text)}
+.modal-ttl{font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:700;margin-bottom:.35rem}
+.modal-sub{color:var(--text2);font-size:13px;margin-bottom:1.7rem}
+.f-inp{width:100%;background:var(--glass);border:1px solid var(--border);color:var(--text);padding:11px 15px;border-radius:var(--rs);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:var(--tr);margin-bottom:12px}
+.f-inp::placeholder{color:var(--muted)}
+.f-inp:focus{border-color:rgba(232,168,56,0.45);background:var(--glass2)}
+.f-sub{width:100%;padding:12px;background:var(--accent);color:#09090e;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer;transition:var(--tr);margin-top:4px;font-family:'Inter',sans-serif}
+.f-sub:hover{background:#f0b840}
+.f-tog{text-align:center;margin-top:1.1rem;font-size:12px;color:var(--text2)}
+.f-tog button{background:none;border:none;color:var(--accent);font-weight:600;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif}
+.toast-wrap{position:fixed;bottom:1.8rem;right:1.4rem;z-index:300;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:#14141f;border:1px solid var(--border);border-radius:var(--rs);padding:11px 16px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:9px;box-shadow:0 8px 28px rgba(0,0,0,0.4);animation:slideL .28s ease;max-width:290px}
+@keyframes slideL{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast-s{border-left:3px solid #4caf82}.toast-i{border-left:3px solid #3bb8d4}.toast-e{border-left:3px solid #e85d5d}
+.empty{text-align:center;padding:4rem 2rem;color:var(--muted)}
+.empty-ico{font-size:3.5rem;margin-bottom:.9rem}
+.empty h3{font-size:1.1rem;color:var(--text2);margin-bottom:.4rem}
+.recent-bar{background:var(--bg2);border-top:1px solid var(--border);padding:2.5rem 1.5rem}
+.recent-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:.8rem;scrollbar-width:thin}
+.recent-chip{flex-shrink:0;background:var(--glass);border:1px solid var(--border);border-radius:var(--rs);padding:9px 14px;font-size:12px;display:flex;align-items:center;gap:7px;cursor:pointer;transition:var(--tr);white-space:nowrap}
+.recent-chip:hover{background:var(--glass2);border-color:var(--border2)}
+.footer{background:var(--bg2);border-top:1px solid var(--border);padding:1.8rem 1.5rem;text-align:center;color:var(--muted);font-size:12px}
+.divider{height:1px;background:linear-gradient(to right,transparent,var(--border),transparent)}
+.loading-bar{position:fixed;top:0;left:0;right:0;z-index:999;height:3px;background:linear-gradient(to right,#7c5cbf,var(--accent));animation:ldbar 1.6s ease-in-out infinite;transform-origin:left}
+@keyframes ldbar{0%{transform:scaleX(0)}60%{transform:scaleX(.75)}100%{transform:scaleX(1);opacity:0}}
+.lc-bollywood{background:rgba(232,168,56,0.18);color:#e8a838;border-color:rgba(232,168,56,0.3)}
+.lc-hollywood{background:rgba(59,184,212,0.18);color:#3bb8d4;border-color:rgba(59,184,212,0.3)}
+.lc-korean{background:rgba(212,96,122,0.18);color:#d4607a;border-color:rgba(212,96,122,0.3)}
+.lc-japanese{background:rgba(155,109,219,0.18);color:#9b6ddb;border-color:rgba(155,109,219,0.3)}
+.source-tag{font-size:9px;color:var(--muted);text-align:right;padding:0 13px 8px;font-style:italic}
+@media(max-width:768px){
+  .nav{padding:12px 14px}.nav-mid{display:none}
+  .mood-grid{grid-template-columns:repeat(4,1fr);gap:7px}
+  .mood-card{padding:1rem .5rem}.mood-emoji{font-size:1.7rem}.mood-label{font-size:10px}
+  .movies-grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
+  .sec{padding:3rem 1rem}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const {createElement:h,useState,useCallback,useRef,Fragment} = React;
+
+// ── STATIC MOVIE DATABASE ──────────────────────────────────────────
+const DB = {
+  happy:[
+    {title:"Zindagi Na Milegi Dobara",type:"Movie",language:"Bollywood",genre:"Comedy/Drama",year:2011,rating:8.2,description:"Three friends embark on a once-in-a-lifetime trip across Spain, rediscovering joy and friendship along the way. Pure cinematic sunshine that'll make you want to book the next flight.",posterEmoji:"🌅"},
+    {title:"3 Idiots",type:"Movie",language:"Bollywood",genre:"Comedy/Drama",year:2009,rating:8.4,description:"A hilarious and heartfelt tale of three engineering students chasing dreams over grades. Aamir Khan at his best — you'll laugh, cry, and rethink your whole life.",posterEmoji:"🎓"},
+    {title:"Hera Pheri",type:"Movie",language:"Bollywood",genre:"Comedy",year:2000,rating:8.2,description:"Three broke, bumbling men stumble into a kidnapping scheme that spirals into pure chaos. One of Bollywood's greatest comedies with iconic dialogues you'll quote forever.",posterEmoji:"😂"},
+    {title:"The Pursuit of Happyness",type:"Movie",language:"Hollywood",genre:"Drama",year:2006,rating:8.0,description:"Will Smith delivers a stunning performance as a man who refuses to let hardship steal his smile. A true story that's equal parts tearful and triumphant.",posterEmoji:"🏃"},
+    {title:"La La Land",type:"Movie",language:"Hollywood",genre:"Musical/Romance",year:2016,rating:8.0,description:"A jazz pianist and an aspiring actress fall in love while chasing their Hollywood dreams. Visually dazzling, emotionally rich, and full of joy even in its bittersweet moments.",posterEmoji:"🎵"},
+    {title:"Home Alone",type:"Movie",language:"Hollywood",genre:"Comedy",year:1990,rating:7.7,description:"Eight-year-old Kevin is accidentally left behind when his family flies to Paris, so he sets up hilarious booby traps for bumbling burglars. A timeless feel-good classic.",posterEmoji:"🏠"},
+    {title:"Reply 1988",type:"Web Series",language:"Korean",genre:"Drama/Comedy",year:2015,rating:9.0,description:"Five families living in a Seoul alleyway in 1988 share love, food, laughter, and heartbreak. The warmest, most comforting show you'll ever watch.",posterEmoji:"🏘️"},
+    {title:"My Love from the Star",type:"Web Series",language:"Korean",genre:"Romance/Comedy",year:2013,rating:8.5,description:"An alien stranded on Earth for 400 years falls for a top Hallyu actress. Witty, charming, and utterly addictive.",posterEmoji:"⭐"},
+    {title:"Spirited Away",type:"Movie",language:"Japanese",genre:"Animation/Fantasy",year:2001,rating:8.6,description:"A young girl stumbles into a magical spirit world and must work to free herself and her transformed parents. Studio Ghibli's masterpiece — endlessly imaginative and joyful.",posterEmoji:"🏮"},
+    {title:"My Neighbor Totoro",type:"Movie",language:"Japanese",genre:"Animation/Family",year:1988,rating:8.1,description:"Two young sisters discover a gentle forest spirit named Totoro in the Japanese countryside. The purest, most wholesome movie ever made.",posterEmoji:"🌿"},
+    {title:"Andhadhun",type:"Movie",language:"Bollywood",genre:"Thriller/Comedy",year:2018,rating:8.3,description:"A supposedly blind pianist witnesses a murder and gets tangled in a deliciously dark web of lies. Wickedly funny and brilliantly plotted.",posterEmoji:"🎹"},
+    {title:"The Grand Budapest Hotel",type:"Movie",language:"Hollywood",genre:"Comedy/Adventure",year:2014,rating:8.1,description:"A legendary concierge and his lobby boy go on a madcap adventure across a fictional European republic. Wes Anderson's most delightful confection.",posterEmoji:"🏨"},
+  ],
+  sad:[
+    {title:"Taare Zameen Par",type:"Movie",language:"Bollywood",genre:"Drama",year:2007,rating:8.5,description:"A dyslexic eight-year-old struggles unseen by the world until an art teacher finally recognises his gifts. Aamir Khan's directorial debut will shatter and heal your heart.",posterEmoji:"🌟"},
+    {title:"Devdas (2002)",type:"Movie",language:"Bollywood",genre:"Romance/Drama",year:2002,rating:7.3,description:"Sanjay Leela Bhansali's lavish retelling of unrequited love, heartbreak, and self-destruction. Heartbreakingly beautiful in every frame.",posterEmoji:"💔"},
+    {title:"Schindler's List",type:"Movie",language:"Hollywood",genre:"Historical Drama",year:1993,rating:9.0,description:"Oskar Schindler saves over a thousand Jewish refugees during the Holocaust in Spielberg's devastating masterpiece. Cinema's most important film.",posterEmoji:"🕯️"},
+    {title:"The Fault in Our Stars",type:"Movie",language:"Hollywood",genre:"Romance/Drama",year:2014,rating:7.7,description:"Two teenagers with cancer fall beautifully, heartbreakingly in love. Bring every tissue you own — and then some.",posterEmoji:"🌠"},
+    {title:"Eternal Sunshine of the Spotless Mind",type:"Movie",language:"Hollywood",genre:"Sci-Fi/Romance",year:2004,rating:8.3,description:"A man erases memories of his ex-girlfriend only to fall in love with her all over again. A tender, surreal meditation on love and loss.",posterEmoji:"🧠"},
+    {title:"My Mister",type:"Web Series",language:"Korean",genre:"Drama",year:2018,rating:9.2,description:"A cold, beaten-down young woman and a middle-aged man at his lowest silently save each other. The most quietly devastating drama ever made.",posterEmoji:"🌧️"},
+    {title:"Move to Heaven",type:"Web Series",language:"Korean",genre:"Drama",year:2021,rating:8.7,description:"A young man with Asperger's cleans out the belongings of the deceased, uncovering the untold stories of each life. Profoundly moving.",posterEmoji:"📦"},
+    {title:"Grave of the Fireflies",type:"Movie",language:"Japanese",genre:"Animation/War Drama",year:1988,rating:8.5,description:"Two orphaned siblings struggle to survive in wartime Japan. One of the most emotionally devastating animated films ever created — watch with caution.",posterEmoji:"🌌"},
+    {title:"Your Name",type:"Movie",language:"Japanese",genre:"Animation/Romance",year:2016,rating:8.4,description:"A boy and girl from different worlds mysteriously swap bodies and fall in love across time and space. Achingly beautiful and bittersweet.",posterEmoji:"🌠"},
+    {title:"It's Okay to Not Be Okay",type:"Web Series",language:"Korean",genre:"Romance/Drama",year:2020,rating:8.6,description:"A cold children's book author and a dedicated psychiatric nurse heal each other's childhood wounds. Fairytale aesthetics wrapping raw emotional truth.",posterEmoji:"🦋"},
+    {title:"Kal Ho Naa Ho",type:"Movie",language:"Bollywood",genre:"Romance/Drama",year:2003,rating:8.0,description:"A terminally ill man brightens the lives of everyone around him while quietly sacrificing his own happiness. Perfectly crafted emotional devastation.",posterEmoji:"☀️"},
+    {title:"Manchester by the Sea",type:"Movie",language:"Hollywood",genre:"Drama",year:2016,rating:7.9,description:"A man must return to his hometown to care for his nephew after his brother dies, confronting a painful past. Quietly brutal and achingly real.",posterEmoji:"⚓"},
+  ],
+  romantic:[
+    {title:"Dilwale Dulhania Le Jayenge",type:"Movie",language:"Bollywood",genre:"Romance",year:1995,rating:8.1,description:"Two NRIs fall in love on a Eurail trip, then fight tradition and family to be together. The quintessential Bollywood romance — iconic for a reason.",posterEmoji:"🌹"},
+    {title:"Jab We Met",type:"Movie",language:"Bollywood",genre:"Romance/Comedy",year:2007,rating:7.9,description:"A heartbroken businessman meets the most vivacious, unstoppable woman on a train. Kareena Kapoor is a force of nature in this timeless love story.",posterEmoji:"🚂"},
+    {title:"Notting Hill",type:"Movie",language:"Hollywood",genre:"Romance/Comedy",year:1999,rating:7.2,description:"A humble London bookshop owner falls for the world's biggest movie star. Charming, witty, and irresistibly romantic.",posterEmoji:"🌺"},
+    {title:"Before Sunrise",type:"Movie",language:"Hollywood",genre:"Romance/Drama",year:1995,rating:8.1,description:"An American and a French woman spend one perfect night talking and falling in love in Vienna. The most real and tender romance ever filmed.",posterEmoji:"🌃"},
+    {title:"Pride & Prejudice",type:"Movie",language:"Hollywood",genre:"Period Romance",year:2005,rating:7.8,description:"Keira Knightley and Matthew Macfadyen electrify Austen's classic tale of wit, pride, and slow-burn love. Every frame is like a painting.",posterEmoji:"📜"},
+    {title:"Crash Landing on You",type:"Web Series",language:"Korean",genre:"Romance/Drama",year:2019,rating:8.8,description:"A South Korean heiress crash-lands in North Korea and falls for a military officer who must protect her. The K-drama that conquered the world.",posterEmoji:"🪂"},
+    {title:"What's Wrong with Secretary Kim",type:"Web Series",language:"Korean",genre:"Romance/Comedy",year:2018,rating:8.3,description:"A narcissistic CEO panics when his devoted secretary announces she's quitting to live her own life. Irresistible enemies-to-lovers chemistry.",posterEmoji:"💼"},
+    {title:"5 Centimeters per Second",type:"Movie",language:"Japanese",genre:"Animation/Romance",year:2007,rating:7.7,description:"Three interconnected stories follow the slow drift apart of two childhood sweethearts. Makoto Shinkai's most poetic and heartbreaking work.",posterEmoji:"🌸"},
+    {title:"Ae Dil Hai Mushkil",type:"Movie",language:"Bollywood",genre:"Romance/Drama",year:2016,rating:6.9,description:"An exploration of unrequited love — one of the most painful yet gorgeous forms of longing. Ranbir Kapoor is luminous and broken all at once.",posterEmoji:"🎻"},
+    {title:"The Notebook",type:"Movie",language:"Hollywood",genre:"Romance/Drama",year:2004,rating:7.8,description:"A poor country boy and a rich socialite share a summer romance that spans decades of separation and devotion. The romance movie that defined a generation.",posterEmoji:"📓"},
+    {title:"Goblin",type:"Web Series",language:"Korean",genre:"Fantasy/Romance",year:2016,rating:8.7,description:"An immortal goblin searches for his human bride who alone can end his eternal life. Epic, sweeping romance with gorgeous cinematography.",posterEmoji:"🕯️"},
+    {title:"Howl's Moving Castle",type:"Movie",language:"Japanese",genre:"Animation/Romance/Fantasy",year:2004,rating:8.2,description:"A young woman cursed to look old falls for a dazzling but troubled wizard. Studio Ghibli's most romantic and visually spectacular film.",posterEmoji:"🏰"},
+  ],
+  excited:[
+    {title:"Pathaan",type:"Movie",language:"Bollywood",genre:"Action/Spy",year:2023,rating:5.9,description:"Shah Rukh Khan returns as a RAW agent taking on a global terrorist network in an outrageously fun action spectacle. Pure adrenaline, no brakes.",posterEmoji:"💥"},
+    {title:"War",type:"Movie",language:"Bollywood",genre:"Action",year:2019,rating:5.1,description:"Hrithik Roshan vs Tiger Shroff in the biggest action showdown Bollywood has ever staged. Jaw-dropping stunts and chase sequences.",posterEmoji:"💣"},
+    {title:"Mad Max: Fury Road",type:"Movie",language:"Hollywood",genre:"Action/Sci-Fi",year:2015,rating:8.1,description:"Two hours of relentless, visionary post-apocalyptic car combat that never lets up for a single second. The greatest action movie of its era.",posterEmoji:"🚗"},
+    {title:"Mission: Impossible – Fallout",type:"Movie",language:"Hollywood",genre:"Action/Spy",year:2018,rating:7.7,description:"Tom Cruise literally risks his life in the most insane practical stunt sequences ever committed to film. Every action beat is more spectacular than the last.",posterEmoji:"🚁"},
+    {title:"Top Gun: Maverick",type:"Movie",language:"Hollywood",genre:"Action/Drama",year:2022,rating:8.3,description:"Maverick is back in the cockpit and better than ever, training a new generation of pilots for an impossible mission. The best pure blockbuster in decades.",posterEmoji:"✈️"},
+    {title:"Squid Game",type:"Web Series",language:"Korean",genre:"Thriller/Drama",year:2021,rating:8.0,description:"Desperate contestants compete in deadly children's games for a life-changing prize. The show that stopped the world — gripping, brutal, unmissable.",posterEmoji:"🎮"},
+    {title:"Kingdom",type:"Web Series",language:"Korean",genre:"Historical/Horror",year:2019,rating:8.3,description:"A crown prince battles both political conspiracy and a zombie plague in medieval Joseon. Relentlessly thrilling with breathtaking production design.",posterEmoji:"👑"},
+    {title:"Attack on Titan",type:"Web Series",language:"Japanese",genre:"Action/Dark Fantasy",year:2013,rating:9.0,description:"What starts as humanity vs giants evolves into one of fiction's most complex and breathtaking narratives. Prepare to have your jaw on the floor.",posterEmoji:"⚔️"},
+    {title:"Demon Slayer",type:"Web Series",language:"Japanese",genre:"Action/Animation",year:2019,rating:8.7,description:"A boy becomes a demon slayer to save his sister in one of the most visually stunning anime ever produced. Every fight sequence is a work of art.",posterEmoji:"🔥"},
+    {title:"John Wick",type:"Movie",language:"Hollywood",genre:"Action",year:2014,rating:7.4,description:"A retired hitman unleashes absolute hell on an entire crime syndicate after they kill his dog. Keanu Reeves in the role he was born to play.",posterEmoji:"🐕"},
+    {title:"Uri: The Surgical Strike",type:"Movie",language:"Bollywood",genre:"Action/Military",year:2019,rating:8.3,description:"Based on India's real 2016 surgical strikes — viscerally shot, patriotically charged, and utterly gripping from start to finish.",posterEmoji:"🇮🇳"},
+    {title:"Spider-Man: Into the Spider-Verse",type:"Movie",language:"Hollywood",genre:"Animation/Action",year:2018,rating:8.4,description:"Miles Morales becomes Spider-Man in an animation style that breaks every rule of what a comic book movie can be. Exhilarating from first frame to last.",posterEmoji:"🕷️"},
+  ],
+  motivational:[
+    {title:"Bhaag Milkha Bhaag",type:"Movie",language:"Bollywood",genre:"Biopic/Sports",year:2013,rating:8.2,description:"The incredible true story of Milkha Singh — the Flying Sikh — who ran from tragedy to glory. Farhan Akhtar gives the performance of his career.",posterEmoji:"🏃"},
+    {title:"MS Dhoni: The Untold Story",type:"Movie",language:"Bollywood",genre:"Biopic/Sports",year:2016,rating:8.2,description:"From a small-town railway ticket collector to World Cup-winning captain — Dhoni's journey is pure inspiration. Sushant Singh Rajput is unforgettable.",posterEmoji:"🏏"},
+    {title:"Rocky (1976)",type:"Movie",language:"Hollywood",genre:"Sports/Drama",year:1976,rating:8.1,description:"A small-time Philadelphia boxer gets a shot at the heavyweight championship and discovers what he's truly made of. The original underdog story.",posterEmoji:"🥊"},
+    {title:"The Shawshank Redemption",type:"Movie",language:"Hollywood",genre:"Drama",year:1994,rating:9.3,description:"A wrongly imprisoned banker refuses to let prison break his spirit, slowly engineering an audacious escape. The greatest film ever made about hope.",posterEmoji:"🔑"},
+    {title:"Soul",type:"Movie",language:"Hollywood",genre:"Animation/Drama",year:2020,rating:8.1,description:"A jazz musician on the verge of his big break must find what makes life worth living. Pixar's most philosophical and quietly profound masterpiece.",posterEmoji:"🎷"},
+    {title:"Extraordinary Attorney Woo",type:"Web Series",language:"Korean",genre:"Legal/Drama",year:2022,rating:8.6,description:"A brilliant attorney with autism navigates a world not built for her while winning impossible cases. Warm, funny, and deeply inspiring.",posterEmoji:"🐋"},
+    {title:"Reply 1988",type:"Web Series",language:"Korean",genre:"Drama/Comedy",year:2015,rating:9.0,description:"Five families in a Seoul alleyway face the future together — full of lessons about perseverance, love, and community. Korea's most beloved drama.",posterEmoji:"🏘️"},
+    {title:"Haikyuu!!",type:"Web Series",language:"Japanese",genre:"Sports/Animation",year:2014,rating:8.7,description:"A short volleyball player refuses to let his height define his ceiling. The most electrifying and emotionally galvanising sports anime ever made.",posterEmoji:"🏐"},
+    {title:"Vinland Saga",type:"Web Series",language:"Japanese",genre:"Historical/Action",year:2019,rating:8.8,description:"A Viking boy seeks revenge for his father's death, ultimately discovering that true strength comes from choosing peace. Epic in every sense.",posterEmoji:"⚔️"},
+    {title:"Dangal",type:"Movie",language:"Bollywood",genre:"Biopic/Sports",year:2016,rating:8.4,description:"A former wrestler trains his daughters to become national champions in a world that doesn't believe in them. Aamir Khan at his most powerful.",posterEmoji:"🏅"},
+    {title:"The Pursuit of Happyness",type:"Movie",language:"Hollywood",genre:"Drama",year:2006,rating:8.0,description:"A homeless father refuses to give up on his dreams — or his son. Will Smith's greatest performance, based on a staggering true story.",posterEmoji:"💼"},
+    {title:"Whiplash",type:"Movie",language:"Hollywood",genre:"Drama/Music",year:2014,rating:8.5,description:"A jazz student and his relentless conductor push each other to terrifying extremes of greatness. Absolutely riveting — you'll never hear drumming the same way again.",posterEmoji:"🥁"},
+  ],
+  scared:[
+    {title:"Stree",type:"Movie",language:"Bollywood",genre:"Horror/Comedy",year:2018,rating:7.5,description:"A small town is terrorised by a mysterious female ghost who abducts men in the night. Perfectly balances genuine scares with razor-sharp comedy.",posterEmoji:"👻"},
+    {title:"Bhool Bhulaiyaa",type:"Movie",language:"Bollywood",genre:"Horror/Thriller",year:2007,rating:7.4,description:"Akshay Kumar investigates a haunted mansion in a twisty psychological horror-comedy with an incredible climax. Still gives people chills.",posterEmoji:"🕯️"},
+    {title:"The Conjuring",type:"Movie",language:"Hollywood",genre:"Horror",year:2013,rating:7.5,description:"Based on the true case files of paranormal investigators Ed and Lorraine Warren. One of the most effectively terrifying haunted house films ever made.",posterEmoji:"👁️"},
+    {title:"Hereditary",type:"Movie",language:"Hollywood",genre:"Horror",year:2018,rating:7.3,description:"A family unravels disturbing, inherited secrets after the death of their secretive grandmother. Pure dread that builds to an absolutely devastating finale.",posterEmoji:"🪬"},
+    {title:"Get Out",type:"Movie",language:"Hollywood",genre:"Horror/Thriller",year:2017,rating:7.7,description:"A Black man visits his white girlfriend's family estate and senses something deeply, terrifyingly wrong. Jordan Peele's debut is a modern masterpiece.",posterEmoji:"🌿"},
+    {title:"Strangers from Hell",type:"Web Series",language:"Korean",genre:"Thriller/Horror",year:2019,rating:7.9,description:"A young man moves into cheap Seoul lodgings and slowly realises his neighbours are far more sinister than they appear. Claustrophobic, nerve-shredding dread.",posterEmoji:"🚪"},
+    {title:"Sweet Home",type:"Web Series",language:"Korean",genre:"Horror/Drama",year:2020,rating:7.4,description:"Residents of an apartment building fight for survival as people around them transform into monsters. Visceral, brutal, and surprisingly emotional.",posterEmoji:"🏢"},
+    {title:"Junji Ito: Maniac",type:"Web Series",language:"Japanese",genre:"Horror/Animation",year:2023,rating:6.9,description:"Adaptations of the legendary manga artist's most disturbing short stories. Body horror and existential dread delivered with exquisite wrongness.",posterEmoji:"🐚"},
+    {title:"Uzumaki",type:"Movie",language:"Japanese",genre:"Horror",year:2000,rating:6.7,description:"A coastal town falls under the obsessive, spiralling curse of a spiral. Deliberately unsettling and visually unique body horror.",posterEmoji:"🌀"},
+    {title:"A Quiet Place",type:"Movie",language:"Hollywood",genre:"Horror/Sci-Fi",year:2018,rating:7.5,description:"A family must live in near-total silence because creatures hunt entirely by sound. Uses silence itself as the most terrifying tool in cinema.",posterEmoji:"🤫"},
+    {title:"The Wailing",type:"Movie",language:"Korean",genre:"Horror/Mystery",year:2016,rating:7.9,description:"A mysterious Japanese stranger arrives in a small Korean village and a series of savage murders begins. Atmospheric folk horror of the highest order.",posterEmoji:"🌫️"},
+    {title:"Tumbbad",type:"Movie",language:"Bollywood",genre:"Horror/Fantasy",year:2018,rating:8.2,description:"A man makes a pact with a forgotten demon-god in pursuit of cursed treasure across generations. India's most visually stunning and original horror film.",posterEmoji:"🏚️"},
+  ],
+  relaxed:[
+    {title:"Yeh Jawaani Hai Deewani",type:"Movie",language:"Bollywood",genre:"Romance/Drama",year:2013,rating:7.2,description:"Friends reunite years later and rediscover themselves, love, and the meaning of home. The perfect lazy Sunday afternoon film.",posterEmoji:"🏔️"},
+    {title:"Queen",type:"Movie",language:"Bollywood",genre:"Drama/Comedy",year:2014,rating:8.2,description:"A jilted bride decides to go on her honeymoon solo and discovers herself completely. Kangana Ranaut is luminous — feel-good and deeply satisfying.",posterEmoji:"👑"},
+    {title:"Chef (2014)",type:"Movie",language:"Hollywood",genre:"Comedy/Drama",year:2014,rating:7.3,description:"A head chef quits his restaurant job, buys a food truck, and rediscovers his joy of cooking on a road trip with his son. Warm and delicious.",posterEmoji:"🍳"},
+    {title:"Julie & Julia",type:"Movie",language:"Hollywood",genre:"Drama/Comedy",year:2009,rating:7.0,description:"Two women separated by 50 years both find themselves through French cooking. Meryl Streep as Julia Child is pure, glorious comfort.",posterEmoji:"🥘"},
+    {title:"Princess Mononoke",type:"Movie",language:"Japanese",genre:"Animation/Fantasy",year:1997,rating:8.4,description:"An epic battle between industrialization and the gods of the forest told with Studio Ghibli's breathtaking artistry. Meditative and grand.",posterEmoji:"🌲"},
+    {title:"The Wailing",type:"Movie",language:"Korean",genre:"Mystery/Drama",year:2016,rating:7.9,description:"A quiet village mystery that builds slowly and hypnotically into something profound. Atmospheric and deeply immersive.",posterEmoji:"🌫️"},
+    {title:"Little Forest",type:"Movie",language:"Korean",genre:"Drama",year:2018,rating:7.6,description:"A young woman returns to her rural hometown and heals herself through cooking the seasons' harvests. The most soothing food film you'll ever see.",posterEmoji:"🌾"},
+    {title:"My Neighbor Totoro",type:"Movie",language:"Japanese",genre:"Animation/Family",year:1988,rating:8.1,description:"Two girls make friends with a giant forest spirit in the Japanese countryside. Pure, gentle magic that melts all stress away instantly.",posterEmoji:"🌿"},
+    {title:"Lost in Translation",type:"Movie",language:"Hollywood",genre:"Drama/Romance",year:2003,rating:7.7,description:"Two lonely Americans find unexpected connection in a Tokyo hotel. Quiet, dreamy, and perfectly captures the peace of being lost.",posterEmoji:"🏙️"},
+    {title:"Masaan",type:"Movie",language:"Bollywood",genre:"Drama",year:2015,rating:8.2,description:"Two quietly devastating stories of grief and redemption play out against the ghats of Varanasi. Poetic, slow-burning, and deeply beautiful.",posterEmoji:"🌊"},
+    {title:"Midnight Diner",type:"Web Series",language:"Japanese",genre:"Drama/Slice of Life",year:2009,rating:8.6,description:"A Tokyo diner open only at midnight serves one dish per customer and each person brings a story. The most tranquil, nourishing TV series in existence.",posterEmoji:"🍜"},
+    {title:"Our Little Blues",type:"Movie",language:"Korean",genre:"Drama/Romance",year:2022,rating:7.4,description:"Multiple interwoven love stories play out against Jeju Island's stunning coastlines. Slow, beautiful, and profoundly calming.",posterEmoji:"🏝️"},
+  ],
+  bored:[
+    {title:"Gangs of Wasseypur",type:"Movie",language:"Bollywood",genre:"Crime/Drama",year:2012,rating:8.2,description:"A five-hour saga of blood feuds and coal mafia wars spanning three generations in Jharkhand. India's answer to The Godfather — totally consuming.",posterEmoji:"🔫"},
+    {title:"Mirzapur",type:"Web Series",language:"Bollywood",genre:"Crime/Thriller",year:2018,rating:8.5,description:"Guns, power, drugs, and family politics rule the lawless streets of Purvanchal. Utterly gripping — you will not stop watching.",posterEmoji:"🪑"},
+    {title:"Breaking Bad",type:"Web Series",language:"Hollywood",genre:"Crime/Drama",year:2008,rating:9.5,description:"A high school chemistry teacher is diagnosed with cancer and transforms into the most dangerous drug kingpin in America. The greatest TV show ever made.",posterEmoji:"⚗️"},
+    {title:"Dark",type:"Web Series",language:"Hollywood",genre:"Sci-Fi/Thriller",year:2017,rating:8.8,description:"A German time-travel mystery spanning four generations of interconnected families will make your brain melt in the most satisfying way possible.",posterEmoji:"🌀"},
+    {title:"Parasite",type:"Movie",language:"Korean",genre:"Thriller/Drama",year:2019,rating:8.5,description:"A poor family scheme their way into working for a wealthy household — then everything goes spectacularly, shockingly wrong. Cinema doesn't get better than this.",posterEmoji:"🏡"},
+    {title:"Money Heist",type:"Web Series",language:"Hollywood",genre:"Crime/Thriller",year:2017,rating:8.3,description:"A criminal mastermind and his eccentric crew execute the perfect heist on the Royal Mint of Spain. Once you start, sleeping is no longer an option.",posterEmoji:"💰"},
+    {title:"Prison Playbook",type:"Web Series",language:"Korean",genre:"Comedy/Drama",year:2017,rating:8.9,description:"A baseball star ends up in prison and finds unexpected warmth and hilarity among his fellow inmates. Criminally underrated — you'll binge the whole thing.",posterEmoji:"⚾"},
+    {title:"Death Note",type:"Web Series",language:"Japanese",genre:"Thriller/Psychological",year:2006,rating:9.0,description:"A genius teenager finds a supernatural notebook that kills anyone whose name he writes in it, and a legendary detective tries to catch him. An unmatched cat-and-mouse thriller.",posterEmoji:"📓"},
+    {title:"Fullmetal Alchemist: Brotherhood",type:"Web Series",language:"Japanese",genre:"Action/Fantasy",year:2009,rating:9.1,description:"Two brothers use alchemy to try to restore what they lost — setting off an epic adventure of consequence and sacrifice. The most complete anime story ever told.",posterEmoji:"⚙️"},
+    {title:"Scam 1992",type:"Web Series",language:"Bollywood",genre:"Crime/Drama",year:2020,rating:9.3,description:"The unbelievable true story of Harshad Mehta, who manipulated the entire Bombay Stock Exchange. The highest-rated Indian show ever — and every bit worth it.",posterEmoji:"📈"},
+    {title:"The Last of Us",type:"Web Series",language:"Hollywood",genre:"Drama/Sci-Fi",year:2023,rating:8.8,description:"A gruff survivor escorts a teenage girl immune to a zombie fungus across a ruined America. HBO's most emotionally devastating series since Chernobyl.",posterEmoji:"🍄"},
+    {title:"Oldboy",type:"Movie",language:"Korean",genre:"Thriller/Mystery",year:2003,rating:8.4,description:"A man imprisoned for 15 years with no explanation is suddenly released and must discover why. Park Chan-wook's masterpiece delivers one of cinema's greatest twists.",posterEmoji:"🔨"},
+  ],
+};
+
+const MOODS=[
+  {id:'happy',label:'Happy',emoji:'😄',mc:'mc-happy'},
+  {id:'sad',label:'Sad',emoji:'😢',mc:'mc-sad'},
+  {id:'romantic',label:'Romantic',emoji:'❤️',mc:'mc-romantic'},
+  {id:'excited',label:'Excited',emoji:'🤩',mc:'mc-excited'},
+  {id:'motivational',label:'Motivated',emoji:'💪',mc:'mc-motivational'},
+  {id:'scared',label:'Scared',emoji:'😱',mc:'mc-scared'},
+  {id:'relaxed',label:'Relaxed',emoji:'😌',mc:'mc-relaxed'},
+  {id:'bored',label:'Bored',emoji:'😑',mc:'mc-bored'},
+];
+
+const LANG_OPTS=['All','Bollywood','Hollywood','Korean','Japanese'];
+const TYPE_OPTS=['All','Movie','Web Series'];
+const YEAR_OPTS=['All','2020s','2010s','2000s','1990s','Before 1990'];
+const GENRE_OPTS=['All','Action','Comedy','Drama','Romance','Horror','Thriller','Sci-Fi','Animation','Sports'];
+
+const POSTER_BG={
+  Bollywood:'linear-gradient(145deg,rgba(232,168,56,0.35) 0%,rgba(9,9,14,0.9) 100%)',
+  Hollywood:'linear-gradient(145deg,rgba(59,184,212,0.35) 0%,rgba(9,9,14,0.9) 100%)',
+  Korean:'linear-gradient(145deg,rgba(212,96,122,0.35) 0%,rgba(9,9,14,0.9) 100%)',
+  Japanese:'linear-gradient(145deg,rgba(155,109,219,0.35) 0%,rgba(9,9,14,0.9) 100%)',
+};
+
+function applyFilters(list, filters, search) {
+  let r = list;
+  if (search) {
+    const q = search.toLowerCase();
+    r = r.filter(m => m.title.toLowerCase().includes(q) || m.genre.toLowerCase().includes(q) || m.language.toLowerCase().includes(q));
+  }
+  if (filters.language !== 'All') r = r.filter(m => m.language === filters.language);
+  if (filters.type !== 'All') r = r.filter(m => m.type === filters.type);
+  if (filters.genre !== 'All') r = r.filter(m => m.genre.toLowerCase().includes(filters.genre.toLowerCase()));
+  if (filters.year !== 'All') {
+    r = r.filter(m => {
+      const y = m.year;
+      if (filters.year === '2020s') return y >= 2020;
+      if (filters.year === '2010s') return y >= 2010 && y < 2020;
+      if (filters.year === '2000s') return y >= 2000 && y < 2010;
+      if (filters.year === '1990s') return y >= 1990 && y < 2000;
+      if (filters.year === 'Before 1990') return y < 1990;
+      return true;
+    });
+  }
+  return r;
+}
+
+function searchAllMoods(query) {
+  const q = query.toLowerCase();
+  const seen = new Set();
+  const results = [];
+  Object.values(DB).forEach(list => {
+    list.forEach(m => {
+      if (!seen.has(m.title) && (m.title.toLowerCase().includes(q) || m.genre.toLowerCase().includes(q) || m.language.toLowerCase().includes(q) || m.description.toLowerCase().includes(q))) {
+        seen.add(m.title);
+        results.push(m);
+      }
+    });
+  });
+  return results;
+}
+
+// COMPONENTS
+function Toasts({toasts}){
+  return h('div',{className:'toast-wrap'},
+    toasts.map(t=>h('div',{key:t.id,className:`toast toast-${t.type}`},
+      h('span',null,t.type==='success'?'✓':t.type==='error'?'✕':'ℹ'),t.msg
+    ))
+  );
+}
+
+function SkelCard(){
+  return h('div',{className:'skel-card'},
+    h('div',{className:'skel',style:{paddingTop:'148%'}}),
+    h('div',{style:{padding:'12px'}},
+      h('div',{className:'skel',style:{height:'13px',marginBottom:'7px',width:'80%'}}),
+      h('div',{className:'skel',style:{height:'11px',marginBottom:'5px',width:'60%'}}),
+      h('div',{className:'skel',style:{height:'10px',marginBottom:'4px'}}),
+      h('div',{className:'skel',style:{height:'10px',width:'85%'}})
+    )
+  );
+}
+
+function MovieCard({movie,isFav,onFav,onView}){
+  const lang=(movie.language||'').toLowerCase();
+  const url=`https://www.youtube.com/results?search_query=${encodeURIComponent((movie.trailerQuery||movie.title)+' official trailer')}`;
+  return h('div',{className:'mv-card',onClick:()=>onView(movie)},
+    h('div',{className:'mv-poster'},
+      h('div',{className:'mv-inner',style:{background:POSTER_BG[movie.language]||POSTER_BG.Hollywood}},
+        h('span',{style:{fontSize:'3.5rem',filter:'drop-shadow(0 2px 8px rgba(0,0,0,0.5))'}},movie.posterEmoji||'🎬'),
+        h('span',{style:{fontSize:'11px',color:'rgba(255,255,255,0.5)',textAlign:'center',padding:'0 10px',lineHeight:1.3,marginTop:'4px'}},movie.title)
+      ),
+      h('div',{className:`mv-badge lc-${lang}`},movie.language),
+      h('button',{className:`mv-fav${isFav?' on':''}`,onClick:e=>{e.stopPropagation();onFav(movie);}},isFav?'❤️':'🤍'),
+      h('div',{className:'mv-overlay'},
+        h('a',{href:url,target:'_blank',rel:'noopener noreferrer',className:'tr-btn',onClick:e=>e.stopPropagation()},'▶ Trailer')
+      )
+    ),
+    h('div',{className:'mv-body'},
+      h('div',{className:'mv-title'},movie.title),
+      h('div',{className:'mv-meta'},
+        h('span',{className:'mv-genre'},movie.genre),
+        h('span',{className:'mv-year'},movie.year),
+        h('span',{className:'mv-rating'},'⭐ ',movie.rating)
+      ),
+      h('div',{className:'mv-desc'},movie.description),
+      h('div',{className:'mv-acts'},
+        h('span',{className:'type-pill'},movie.type),
+        h('a',{href:url,target:'_blank',rel:'noopener noreferrer',className:'tr-btn',onClick:e=>e.stopPropagation()},'▶ Trailer')
+      )
+    )
+  );
+}
+
+function AuthModal({mode,onClose,onAuth}){
+  const [tab,setTab]=useState(mode);
+  const [name,setName]=useState('');
+  const [email,setEmail]=useState('');
+  const [pass,setPass]=useState('');
+  const sub=()=>{if(!email||!pass)return;onAuth({name:name||email.split('@')[0],email});};
+  return h('div',{className:'overlay',onClick:e=>e.target===e.currentTarget&&onClose()},
+    h('div',{className:'modal'},
+      h('button',{className:'modal-x',onClick:onClose},'✕'),
+      h('div',{className:'modal-ttl'},tab==='login'?'Welcome back':'Join MoodCinema'),
+      h('div',{className:'modal-sub'},tab==='login'?'Sign in to save your favorites':'Create an account to get started'),
+      tab==='signup'&&h('input',{className:'f-inp',placeholder:'Your name',value:name,onChange:e=>setName(e.target.value)}),
+      h('input',{className:'f-inp',type:'email',placeholder:'Email address',value:email,onChange:e=>setEmail(e.target.value)}),
+      h('input',{className:'f-inp',type:'password',placeholder:'Password',value:pass,onChange:e=>setPass(e.target.value)}),
+      h('button',{className:'f-sub',onClick:sub},tab==='login'?'Sign In':'Create Account'),
+      h('div',{className:'f-tog'},
+        tab==='login'
+          ?h(Fragment,null,"Don't have an account? ",h('button',{onClick:()=>setTab('signup')},'Sign up'))
+          :h(Fragment,null,"Already have an account? ",h('button',{onClick:()=>setTab('login')},'Sign in'))
+      )
+    )
+  );
+}
+
+function App(){
+  const [user,setUser]=useState(null);
+  const [authModal,setAuthModal]=useState(null);
+  const [mood,setMood]=useState(null);
+  const [movies,setMovies]=useState([]);
+  const [loading,setLoading]=useState(false);
+  const [favs,setFavs]=useState(()=>{try{return JSON.parse(localStorage.getItem('mc_f')||'[]');}catch{return [];}});
+  const [recent,setRecent]=useState(()=>{try{return JSON.parse(localStorage.getItem('mc_r')||'[]');}catch{return [];}});
+  const [search,setSearch]=useState('');
+  const [searchQ,setSearchQ]=useState('');
+  const [section,setSection]=useState('discover');
+  const [filters,setFilters]=useState({language:'All',type:'All',year:'All',genre:'All'});
+  const [toasts,setToasts]=useState([]);
+  const recRef=useRef(null);
+
+  const toast=(msg,type='info')=>{
+    const id=Date.now();
+    setToasts(p=>[...p,{id,msg,type}]);
+    setTimeout(()=>setToasts(p=>p.filter(x=>x.id!==id)),3200);
+  };
+
+  const showMovies=(list)=>{
+    setLoading(true);
+    setMovies([]);
+    setTimeout(()=>{setMovies(list);setLoading(false);},350);
+  };
+
+  const pickMood=m=>{
+    setMood(m);setSearch('');setSearchQ('');
+    const f={language:'All',type:'All',year:'All',genre:'All'};
+    setFilters(f);
+    showMovies(DB[m.id]||[]);
+    setTimeout(()=>recRef.current?.scrollIntoView({behavior:'smooth',block:'start'}),160);
+  };
+
+  const doSearch=()=>{
+    const q=searchQ.trim();
+    if(!q)return;
+    setSearch(q);setMood(null);
+    const results=searchAllMoods(q);
+    showMovies(results);
+    if(!results.length)toast('No matches found — try a different search','info');
+    setTimeout(()=>recRef.current?.scrollIntoView({behavior:'smooth'}),160);
+  };
+
+  const changeFilter=(k,v)=>{
+    const nf={...filters,[k]:v};setFilters(nf);
+    if(mood){
+      const filtered=applyFilters(DB[mood.id]||[],nf,'');
+      showMovies(filtered);
+      if(!filtered.length)toast('No results with these filters','info');
+    } else if(search){
+      const base=searchAllMoods(search);
+      const filtered=applyFilters(base,nf,'');
+      showMovies(filtered);
+    }
+  };
+
+  const toggleFav=movie=>{
+    setFavs(prev=>{
+      const ex=prev.some(m=>m.title===movie.title);
+      const next=ex?prev.filter(m=>m.title!==movie.title):[movie,...prev];
+      try{localStorage.setItem('mc_f',JSON.stringify(next));}catch{}
+      toast(ex?'Removed from favorites':'Saved ❤️',ex?'info':'success');
+      return next;
+    });
+  };
+
+  const viewMovie=movie=>{
+    setRecent(prev=>{
+      const next=[movie,...prev.filter(m=>m.title!==movie.title)].slice(0,10);
+      try{localStorage.setItem('mc_r',JSON.stringify(next));}catch{}
+      return next;
+    });
+    const url=`https://www.youtube.com/results?search_query=${encodeURIComponent((movie.trailerQuery||movie.title)+' official trailer')}`;
+    window.open(url,'_blank','noopener,noreferrer');
+  };
+
+  const random=()=>{
+    const m=MOODS[Math.floor(Math.random()*MOODS.length)];
+    pickMood(m);toast(`Random: ${m.label} mood 🎲`,'info');
+  };
+
+  const isFav=m=>favs.some(f=>f.title===m.title);
+  const shown=section==='favorites'?favs:movies;
+
+  return h(Fragment,null,
+    loading&&h('div',{className:'loading-bar'}),
+
+    h('nav',{className:'nav'},
+      h('div',{className:'logo'},'Mood',h('span',null,'Cinema')),
+      h('div',{className:'nav-mid'},
+        h('button',{className:`nav-tab${section==='discover'?' on':''}`,onClick:()=>setSection('discover')},'🎬 Discover'),
+        h('button',{className:`nav-tab${section==='favorites'?' on':''}`,onClick:()=>setSection('favorites')},`❤️ Favorites${favs.length?' ('+favs.length+')':''}`)
+      ),
+      h('div',{className:'nav-r'},
+        user
+          ?h(Fragment,null,
+              h('div',{style:{width:32,height:32,borderRadius:'50%',background:'var(--adim)',border:'1px solid rgba(232,168,56,0.4)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'var(--accent)'}},user.name[0].toUpperCase()),
+              h('button',{className:'btn btn-g btn-sm',onClick:()=>{setUser(null);toast('Signed out','info');}},'Sign Out')
+            )
+          :h(Fragment,null,
+              h('button',{className:'btn btn-g btn-sm',onClick:()=>setAuthModal('login')},'Sign In'),
+              h('button',{className:'btn btn-p btn-sm',onClick:()=>setAuthModal('signup')},'Sign Up')
+            )
+      )
+    ),
+
+    section==='discover'&&h('section',{className:'hero'},
+      h('div',{className:'hero-bg'}),
+      h('div',{className:'badge'},'✦ Curated by Mood & AI'),
+      h('h1',{className:'hero-h'},
+        'Choose Your ',h('span',{className:'aw'},'Mood'),',',h('br'),
+        'Discover Your Next',h('br'),
+        h('span',{className:'aw'},'Favourite Story')
+      ),
+      h('p',{className:'hero-sub'},'Let your emotions guide you — Bollywood blockbusters, Hollywood epics, Korean thrillers, Japanese masterpieces.'),
+      h('div',{className:'search-w'},
+        h('input',{className:'search-inp',placeholder:'Search a title, genre, or language…',value:searchQ,
+          onChange:e=>setSearchQ(e.target.value),onKeyDown:e=>e.key==='Enter'&&doSearch()}),
+        h('span',{className:'search-ico'},'🔍')
+      ),
+      h('div',{className:'hero-acts'},
+        h('button',{className:'btn btn-p',onClick:doSearch},'Search'),
+        h('button',{className:'btn btn-g',onClick:random},'🎲 Surprise Me')
+      )
+    ),
+
+    section==='discover'&&h('section',{className:'sec',style:{paddingTop:'2rem'}},
+      h('div',{className:'sec-hdr'},
+        h('div',{className:'sec-eyebrow'},'Step 1'),
+        h('h2',{className:'sec-title'},'How are you feeling?'),
+        h('p',{className:'sec-sub'},'Pick a mood — we instantly show you the perfect picks')
+      ),
+      h('div',{className:'mood-grid'},
+        MOODS.map(m=>h('div',{key:m.id,className:`mood-card ${m.mc}${mood?.id===m.id?' sel':''}`,onClick:()=>pickMood(m)},
+          h('div',{className:'mood-emoji'},m.emoji),
+          h('div',{className:'mood-label'},m.label)
+        ))
+      )
+    ),
+
+    h('div',{className:'divider'}),
+
+    h('section',{className:'sec',ref:recRef},
+      section==='favorites'
+        ?h('div',{className:'sec-hdr'},h('div',{className:'sec-eyebrow'},'Your Collection'),h('h2',{className:'sec-title'},'Saved Favourites'))
+        :(mood||search)&&h('div',{className:'sec-hdr'},
+            h('div',{className:'sec-eyebrow'},search?`Search: "${search}"`:`${mood.emoji} ${mood.label} Mood`),
+            h('h2',{className:'sec-title'},'Your Picks'),
+            h('p',{className:'sec-sub'},`${shown.length} title${shown.length!==1?'s':''} curated for you`)
+          ),
+
+      (mood||search||movies.length>0||section==='favorites')&&h('div',{className:'filters'},
+        LANG_OPTS.map(l=>h('button',{key:l,className:`fbtn${filters.language===l?' on':''}`,onClick:()=>changeFilter('language',l)},l)),
+        h('select',{className:'fsel',value:filters.type,onChange:e=>changeFilter('type',e.target.value)},TYPE_OPTS.map(t=>h('option',{key:t},t))),
+        h('select',{className:'fsel',value:filters.genre,onChange:e=>changeFilter('genre',e.target.value)},GENRE_OPTS.map(g=>h('option',{key:g},g))),
+        h('select',{className:'fsel',value:filters.year,onChange:e=>changeFilter('year',e.target.value)},YEAR_OPTS.map(y=>h('option',{key:y},y)))
+      ),
+
+      loading&&h('div',{className:'movies-grid'},Array.from({length:8}).map((_,i)=>h(SkelCard,{key:i}))),
+
+      !loading&&shown.length>0&&h('div',{className:'movies-grid'},
+        shown.map((m,i)=>h(MovieCard,{key:m.title+i,movie:m,isFav:isFav(m),onFav:toggleFav,onView:viewMovie}))
+      ),
+
+      !loading&&shown.length===0&&section==='favorites'&&h('div',{className:'empty'},
+        h('div',{className:'empty-ico'},'🎭'),h('h3',null,'No favourites yet'),h('p',null,'Discover movies and tap ❤️ to save them here')
+      ),
+      !loading&&shown.length===0&&section==='discover'&&!mood&&!search&&h('div',{className:'empty'},
+        h('div',{className:'empty-ico'},'🎬'),h('h3',null,'Pick a mood above'),h('p',null,'Your personalised picks appear instantly')
+      ),
+      !loading&&shown.length===0&&(mood||search)&&!loading&&h('div',{className:'empty'},
+        h('div',{className:'empty-ico'},'🔍'),h('h3',null,'No matches'),h('p',null,'Try clearing some filters')
+      )
+    ),
+
+    recent.length>0&&h('div',{className:'recent-bar'},
+      h('div',{style:{maxWidth:'1200px',margin:'0 auto'}},
+        h('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'1.2rem'}},
+          h('div',null,
+            h('div',{className:'sec-eyebrow',style:{marginBottom:'3px'}},'Your History'),
+            h('h3',{style:{fontFamily:"'Playfair Display',serif",fontSize:'1.3rem',fontWeight:700}},'Recently Viewed')
+          ),
+          h('button',{className:'btn btn-g btn-sm',onClick:()=>{setRecent([]);try{localStorage.removeItem('mc_r');}catch{}}},'Clear')
+        ),
+        h('div',{className:'recent-scroll'},
+          recent.map((m,i)=>h('div',{key:i,className:'recent-chip',onClick:()=>{
+            setSearchQ(m.title);setSearch(m.title);setMood(null);
+            showMovies(searchAllMoods(m.title));
+            setSection('discover');
+            setTimeout(()=>recRef.current?.scrollIntoView({behavior:'smooth'}),120);
+          }},
+            h('span',null,m.posterEmoji||'🎬'),
+            h('span',null,m.title),
+            h('span',{style:{fontSize:'9px',color:'var(--muted)',background:'rgba(255,255,255,0.05)',padding:'2px 7px',borderRadius:'100px',border:'1px solid var(--border)'}},m.language)
+          ))
+        )
+      )
+    ),
+
+    h('footer',{className:'footer'},
+      h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:'17px',fontWeight:700,color:'rgba(240,240,245,0.5)',marginBottom:'.4rem'}},'Mood',h('span',{style:{color:'var(--accent)'}},'Cinema')),
+      h('p',null,'96 hand-picked titles across 8 moods · Bollywood · Hollywood · Korean · Japanese'),
+      h('p',{style:{marginTop:'.3rem',fontSize:'10px',color:'var(--muted)'}},'Click any card to watch the trailer on YouTube')
+    ),
+
+    authModal&&h(AuthModal,{mode:authModal,onClose:()=>setAuthModal(null),onAuth:u=>{setUser(u);setAuthModal(null);toast(`Welcome, ${u.name}! 🎬`,'success');}}),
+    h(Toasts,{toasts})
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(h(App,null));
+</script>
+</body>
+</html>
